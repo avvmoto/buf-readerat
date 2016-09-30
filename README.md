@@ -1,5 +1,8 @@
 # buf-readerat
 
+[![GoDoc](https://godoc.org/github.com/avvmoto/buf-readerat?status.svg)](https://godoc.org/github.com/avvmoto/buf-readerat)
+[![Build Status](https://api.travis-ci.org/avvmoto/buf-readerat.svg?branch=master)](https://travis-ci.org/avvmoto/buf-readerat)
+
 Package buf-readerat implements buffered io.ReaderAt. It wraps an io.ReaderAt
 object, creating another io.ReaderAt object that also implements the interface
 but provides buffering.

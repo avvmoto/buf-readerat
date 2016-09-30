@@ -3,7 +3,6 @@
 // Package buf-readerat implements buffered io.ReaderAt. It wraps an io.ReaderAt
 // object, creating another io.ReaderAt object that also implements the interface
 // but provides buffering.
-
 package bufra
 
 import "io"

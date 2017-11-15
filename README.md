@@ -10,13 +10,13 @@ but provides buffering.
 This package is especially useful for packages those who require io.ReaderAt for
 initialize, like [zip.Reader](https://golang.org/pkg/archive/zip/).
 
-### Installation
+## Installation
 
 `go get github.com/avvmoto/buf-readerat`
 
-### Usage
+## Usage
 
-#### Use BufReaderAt
+### Use BufReaderAt
 
 ``` go
 r := bytes.NewReader([]byte("123456789"))
@@ -31,7 +31,7 @@ fmt.Printf("%s\n", buf)
 ```
 
 
-#### Use Zip file on Google Cloud Storage within Google App Engine
+### Use Zip file on Google Cloud Storage within Google App Engine
 
 ``` go
 
@@ -84,3 +84,10 @@ func (ra *GCSReaderAt) ReadAt(b []byte, off int64) (n int, err error) {
 	return ra.cache.ReadAt(b, off)
 }
 ```
+
+
+## License
+
+Copyright (c) 2016-present [avvmoto](https://github.com/avvmoto)
+
+Licensed under [MIT License](./LICENSE)

@@ -2,8 +2,10 @@ package bufra
 
 import (
 	"bytes"
+	"crypto/rand"
 	"io"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -336,4 +338,50 @@ func TestReadAt(t *testing.T) {
 
 	}
 
+}
+
+// io.ReaderAt specifies clients of ReadAt can execute parallel ReadAt calls
+// on the same input source
+func TestConcurrency(t *testing.T) {
+	// fill a buffer with random data
+	buf := make([]byte, 16*1024) // 16KB
+	_, err := io.ReadFull(rand.Reader, buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// create a reader for the buffer and a BufReaderAt for the reader
+	r := bytes.NewReader([]byte(buf))
+	buffered := NewBufReaderAt(r, 128)
+
+	// start a bunch of threads
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			for j := 0; j < 1000; j++ {
+				// pick a random position and length
+				iterator := 1000*i + j // 0 - 99,999
+				startPos := iterator % (len(buf) - 1000)
+				length := j%7919 + 1
+				endPos := startPos + length
+
+				// read the data directly from the buffer and from the BufReaderAt
+				expected := buf[startPos:endPos]
+				actual := make([]byte, length)
+				_, err := buffered.ReadAt(actual, int64(startPos))
+				if err != nil {
+					t.Log(err)
+					t.Fail()
+				}
+
+				// compare the results
+				if !bytes.Equal(expected, actual) {
+					t.Logf("expected %v, got %v", expected, actual)
+					t.Fail()
+				}
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
 }

@@ -5,7 +5,10 @@
 // but provides buffering.
 package bufra
 
-import "io"
+import (
+	"io"
+	"sync"
+)
 
 const sizeNotInitialized = -1
 const minBufferSize = 4
@@ -17,6 +20,7 @@ type BufReaderAt struct {
 	readerAt   io.ReaderAt
 	sizeTilEOF int
 	lastErr    error
+	mu         sync.Mutex
 }
 
 // NewBufReaderAt returns a new BufReaderAt whose buffer has the specified size.
@@ -33,8 +37,11 @@ func NewBufReaderAt(readerAt io.ReaderAt, size int) *BufReaderAt {
 	}
 }
 
-// ReadAt implements bufferd io.ReadAt. If the under underlying ReadAt return some error, this ReadAt return the same error at corresponding offset.
+// ReadAt implements buffed io.ReadAt. If the under underlying ReadAt return some error, this ReadAt return the same error at corresponding offset.
 func (r *BufReaderAt) ReadAt(b []byte, off int64) (n int, err error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	bufEnd := off + int64(len(b))
 
 	if (off < r.expectedChaceOffset(off) && r.expectedChaceOffset(off) < bufEnd) || (off < r.expectedChaceEnd(off) && r.expectedChaceEnd(off) < bufEnd) {
